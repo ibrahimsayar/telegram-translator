@@ -2,7 +2,13 @@
 
 namespace App\Exceptions;
 
+use Error;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -46,5 +52,40 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * @param Request $request
+     * @param Throwable $e
+     * @return JsonResponse|\Illuminate\Http\Response|Response
+     * @throws Throwable
+     */
+    public function render($request, $e)
+    {
+        if ($e) {
+            if($e instanceof ValidationException) {
+                $mappedErrors = [];
+                foreach ($e->errors() as $index => $error) {
+                    $mappedErrors[] = [
+                        'code' => 0,
+                        'message' => $error[0],
+                        'field' => $index
+                    ];
+                }
+                return response()->json([
+                    'message' => 'Validation errors.',
+                    'description' => 'There are errors in the parameters sent.',
+                    'errors' => $mappedErrors
+                ], RESPONSE::HTTP_BAD_REQUEST);
+            }
+            if ($e instanceof Error) {
+                return response()->json(['code' => RESPONSE::HTTP_BAD_REQUEST, 'message' => $e->getMessage()], RESPONSE::HTTP_BAD_REQUEST);
+            }
+            if ($e instanceof QueryException) {
+                return response()->json(['code' => $e->getCode(), 'message' => $e->getMessage()], RESPONSE::HTTP_BAD_REQUEST);
+            }
+        }
+
+        return parent::render($request, $e);
     }
 }
