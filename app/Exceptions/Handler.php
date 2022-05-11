@@ -63,21 +63,6 @@ class Handler extends ExceptionHandler
     public function render($request, $e)
     {
         if ($e) {
-            if($e instanceof ValidationException) {
-                $mappedErrors = [];
-                foreach ($e->errors() as $index => $error) {
-                    $mappedErrors[] = [
-                        'code' => 0,
-                        'message' => $error[0],
-                        'field' => $index
-                    ];
-                }
-                return response()->json([
-                    'message' => 'Validation errors.',
-                    'description' => 'There are errors in the parameters sent.',
-                    'errors' => $mappedErrors
-                ], RESPONSE::HTTP_BAD_REQUEST);
-            }
             if ($e instanceof Error) {
                 return response()->json(['code' => RESPONSE::HTTP_BAD_REQUEST, 'message' => $e->getMessage()], RESPONSE::HTTP_BAD_REQUEST);
             }
