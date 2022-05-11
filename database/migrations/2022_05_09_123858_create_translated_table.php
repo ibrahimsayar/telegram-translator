@@ -15,10 +15,14 @@ return new class extends Migration
     {
         Schema::create('translated', function (Blueprint $table) {
             $table->id();
-            $table->text('request');
-            $table->text('response');
-            $table->string('language_code');
+            $table->string('first_name');
+            $table->string('username');
+            $table->text('request_text');
+            $table->string('command', 3);
+            $table->text('response_text')->nullable();
+            $table->string('language_code',3);
             $table->boolean('status')->default(false);
+            $table->jsonb('log');
             $table->timestamps();
         });
     }
