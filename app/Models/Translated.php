@@ -9,6 +9,8 @@ class Translated extends Model
 {
     use HasFactory;
 
+    protected $table = 'translated';
+
     protected $fillable = [
         'request',
         'response',
