@@ -7,10 +7,16 @@ use App\Http\Requests\v1\TranslatorConvertRequest;
 use App\Models\Translated;
 use App\Services\v1\Telegram\Service;
 use Error;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class TranslatorController extends Controller
 {
+    /**
+     * @param TranslatorConvertRequest $request
+     * @return JsonResponse
+     */
     public function index(TranslatorConvertRequest $request): JsonResponse
     {
         $firstName = $request->validated('message.from.first_name');
@@ -24,7 +30,7 @@ class TranslatorController extends Controller
             throw new Error('Language not found');
         }
 
-        $text = substr($text, -3);
+        $text = substr($text, 4);
 
         $data = [
             'first_name' => $firstName,
@@ -38,6 +44,7 @@ class TranslatorController extends Controller
         Translated::query()
             ->insert($data);
 
+        return $this->convert($text, $languageCode);
     }
 
     /**
@@ -58,5 +65,28 @@ class TranslatorController extends Controller
         }
 
         return $languageCode;
+    }
+
+    /**
+     * @param $text
+     * @param $languageCode
+     * @return JsonResponse
+     */
+    private function convert($text, $languageCode): JsonResponse
+    {
+        try {
+            $keyword = new GoogleTranslate($languageCode);
+
+            $translatedText = $keyword->translate($text);
+
+            (new Service())->sendMessage($translatedText);
+
+            return response()->json([
+                'status' => 'success',
+            ]);
+
+        } catch (Exception $e) {
+            throw new Error($e->getMessage());
+        }
     }
 }

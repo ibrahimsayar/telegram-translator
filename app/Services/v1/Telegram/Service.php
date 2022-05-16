@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 class Service
 {
-    private function sendRequest($url, $parameters)
+    private function sendRequest($url, $parameters): string
     {
         $response = Http::get($url, $parameters);
 
@@ -20,7 +20,7 @@ class Service
         return $response->body();
     }
 
-    public function sendMessage($message)
+    public function sendMessage($message): string
     {
         $url = env('TELEGRAM_API_URL') . '/' . env('TELEGRAM_API_KEY') . '/sendMessage';
 
@@ -34,7 +34,7 @@ class Service
         return $this->sendRequest($url, $parameters);
     }
 
-    public function sendError($message)
+    public function sendError($message): string
     {
         $url = env('TELEGRAM_API_URL') . '/' . env('TELEGRAM_API_KEY') . '/sendMessage';
 
