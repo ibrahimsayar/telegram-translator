@@ -14,7 +14,11 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 class TranslatorController extends Controller
 {
 
-    public function index(TranslatorConvertRequest $request)
+    /**
+     * @param TranslatorConvertRequest $request
+     * @return JsonResponse
+     */
+    public function index(TranslatorConvertRequest $request): JsonResponse
     {
         $firstName = $request->input('message.from.first_name');
         $username = $request->input('message.from.username');
@@ -43,7 +47,11 @@ class TranslatorController extends Controller
         return $this->convert($text, $languageCode);
     }
 
-    private function getLanguageCode(string $text)
+    /**
+     * @param string $text
+     * @return false|string
+     */
+    protected function getLanguageCode(string $text)
     {
         $languageCodes = [
             'tr',
@@ -59,7 +67,12 @@ class TranslatorController extends Controller
         return $languageCode;
     }
 
-    private function convert($text, $languageCode)
+    /**
+     * @param $text
+     * @param $languageCode
+     * @return JsonResponse
+     */
+    private function convert($text, $languageCode): JsonResponse
     {
         try {
             $keyword = new GoogleTranslate($languageCode);
