@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('username');
             $table->text('request_text');
-            $table->string('command', 3);
+            $table->string('command', 3)->nullable();
             $table->text('response_text')->nullable();
-            $table->string('language_code',3);
+            $table->string('language_code',3)->nullable();
             $table->boolean('status')->default(false);
             $table->jsonb('log');
             $table->timestamps();

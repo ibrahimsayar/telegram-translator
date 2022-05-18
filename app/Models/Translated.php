@@ -12,9 +12,13 @@ class Translated extends Model
     protected $table = 'translated';
 
     protected $fillable = [
-        'request',
-        'response',
+        'first_name',
+        'username',
+        'request_text',
+        'command',
+        'response_text',
         'language_code',
         'status',
+        'log',
     ];
 }

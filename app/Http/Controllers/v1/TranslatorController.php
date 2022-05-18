@@ -20,9 +20,20 @@ class TranslatorController extends Controller
      */
     public function index(TranslatorConvertRequest $request): JsonResponse
     {
+
         $firstName = $request->input('message.from.first_name');
         $username = $request->input('message.from.username');
         $text = $request->input('message.text');
+
+        $data = [
+            'first_name' => $firstName,
+            'username' => $username,
+            'request_text' => $text,
+            'log' => json_encode($request->input()),
+        ];
+
+        $recordId = Translated::query()
+            ->insertGetId($data);
 
         $languageCode = $this->getLanguageCode($text);
         if (!$languageCode) {
@@ -32,19 +43,7 @@ class TranslatorController extends Controller
 
         $text = substr($text, 4);
 
-        $data = [
-            'first_name' => $firstName,
-            'username' => $username,
-            'request_text' => $text,
-            'command' => $languageCode,
-            'language_code' => $languageCode,
-            'log' => json_encode($request->input()),
-        ];
-
-        Translated::query()
-            ->insert($data);
-
-        return $this->convert($text, $languageCode);
+        return $this->convert($text, $languageCode, $recordId);
     }
 
     /**
@@ -72,12 +71,23 @@ class TranslatorController extends Controller
      * @param $languageCode
      * @return JsonResponse
      */
-    private function convert($text, $languageCode): JsonResponse
+    private function convert($text, $languageCode, $recordId): JsonResponse
     {
         try {
             $keyword = new GoogleTranslate($languageCode);
 
             $translatedText = $keyword->translate($text);
+
+            $data = [
+                'command' => $languageCode,
+                'language_code' => $languageCode,
+                'response_text' => $translatedText,
+                'status' => true,
+            ];
+
+            Translated::query()
+                ->where('id', $recordId)
+                ->update($data);
 
             (new Service())->sendMessage($translatedText);
 
