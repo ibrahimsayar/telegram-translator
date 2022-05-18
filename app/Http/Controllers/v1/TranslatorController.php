@@ -56,7 +56,9 @@ class TranslatorController extends Controller
         $languageCode = substr($text, 1, 2);
 
         if (!in_array($languageCode, $languageCodes)) {
-            return false;
+            return response()->json([
+                'status' => 'success',
+            ]);
         }
 
         return $languageCode;
@@ -65,6 +67,7 @@ class TranslatorController extends Controller
     /**
      * @param $text
      * @param $languageCode
+     * @param $recordId
      * @return JsonResponse
      */
     private function convert($text, $languageCode, $recordId): JsonResponse
@@ -92,7 +95,9 @@ class TranslatorController extends Controller
             ]);
 
         } catch (Exception $e) {
-            throw new Error($e->getMessage());
+            return response()->json([
+                'status' => 'success',
+            ]);
         }
     }
 }
