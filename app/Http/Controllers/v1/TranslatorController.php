@@ -36,10 +36,6 @@ class TranslatorController extends Controller
             ->insertGetId($data);
 
         $languageCode = $this->getLanguageCode($text);
-        if (!$languageCode) {
-            (new Service())->sendError('Language not found');
-            throw new Error('Language not found');
-        }
 
         $text = substr($text, 4);
 

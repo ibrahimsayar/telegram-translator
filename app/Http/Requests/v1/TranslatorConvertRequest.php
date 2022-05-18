@@ -54,20 +54,4 @@ class TranslatorConvertRequest extends FormRequest
             'message.text.max' => 'The word you want to translate must be a maximum of 5000 characters.',
         ];
     }
-
-    /**
-     * @param Validator $validator
-     */
-    public function failedValidation(Validator $validator)
-    {
-        if ($validator->fails()) {
-            $error = '';
-            foreach ($validator->errors()->messages() as $index => $error) {
-                $error = $error[0];
-                break;
-            }
-            (new Service())->sendError($error);
-            throw new Error($error);
-        }
-    }
 }
