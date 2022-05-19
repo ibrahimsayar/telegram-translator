@@ -34,6 +34,54 @@ If you are constantly using telegram and want to translate words into different 
 
 <p align="center"><img src="https://raw.githubusercontent.com/ibrahimsayar/telegram-translator/main/public/images/readme-files/quick-step-6.png" width="400"></p>
 
+## Normal Use
+
+### Dependencies
+- PHP v7.4+
+- PostgreSQL v11.16+
+- Composer
+
+### Information
+
+| File | Comment |
+| ------ | ------ |
+| .env | contains environment variables. |
+
+### Installation
+
+```sh
+# Downloading the repo.
+git clone https://github.com/ibrahimsayar/telegram-translator.git
+cd telegram-translator
+
+# We install the necessary packages.
+composer install
+
+# We create the environment variable.
+cp .env.example .env
+php artisan key:generate
+```
+### Important
+
+#### Parameters you need to define after the .env file is created.
+
+| Parameter | Comment |
+| ------ | ------ |
+| DB_CONNECTION | Database connection type. |
+| DB_HOST | contains environment variables. |
+| DB_PORT | Database server address. |
+| DB_DATABASE | Database name. |
+| DB_USERNAME | Database username. |
+| DB_PASSWORD | Database password |
+| TELEGRAM_API_KEY | The id of the bot you created in Telegram. |
+| TELEGRAM_CHAT_ID | The id of the group you added the bot to. |
+
+```sh
+# We start the application.
+# http://127.0.0.1:8000/
+php artisan serve
+```
+
 ## License
 
 The Telegram Translator is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
