@@ -12,14 +12,24 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class TranslatorController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     protected array $languages = [
         'en',
         'tr',
         'try'
     ];
 
+    /**
+     * @var array
+     */
     protected array $entities = [];
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -68,6 +78,11 @@ class TranslatorController extends Controller
         }
     }
 
+    /**
+     * @param string $text
+     * @param array $entities
+     * @return false|string
+     */
     protected function getCommand(string $text, array $entities)
     {
         $command = substr($text, ($entities['offset'] + 1), ($entities['length'] - 1));
@@ -80,6 +95,13 @@ class TranslatorController extends Controller
     }
 
 
+    /**
+     * @param $text
+     * @param $command
+     * @param $recordId
+     * @return JsonResponse
+     * @throws \ErrorException
+     */
     private function convert($text, $command, $recordId): JsonResponse
     {
         $keyword = new GoogleTranslate($command);

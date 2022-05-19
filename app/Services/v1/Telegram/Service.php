@@ -2,9 +2,7 @@
 
 namespace App\Services\v1\Telegram;
 
-use Error;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Http;
 
 class Service
