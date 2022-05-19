@@ -25,4 +25,3 @@ Homestead.json
 .idea
 /vendor
 composer.lock
-.env.example
