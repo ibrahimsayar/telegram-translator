@@ -3,101 +3,106 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\TranslatorConvertRequest;
 use App\Models\Translated;
 use App\Services\v1\Telegram\Service;
-use Error;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class TranslatorController extends Controller
 {
+    protected array $languages = [
+        'en',
+        'tr',
+        'try'
+    ];
 
-    /**
-     * @param TranslatorConvertRequest $request
-     * @return JsonResponse
-     */
-    public function index(TranslatorConvertRequest $request): JsonResponse
-    {
+    protected array $entities = [];
 
-        $firstName = $request->input('message.from.first_name');
-        $username = $request->input('message.from.username');
-        $text = $request->input('message.text');
-
-        $data = [
-            'first_name' => $firstName,
-            'username' => $username,
-            'request_text' => $text,
-            'log' => json_encode($request->input()),
-        ];
-
-        $recordId = Translated::query()
-            ->insertGetId($data);
-
-        $languageCode = $this->getLanguageCode($text);
-
-        $text = substr($text, 4);
-
-        return $this->convert($text, $languageCode, $recordId);
-    }
-
-    /**
-     * @param string $text
-     * @return false|string
-     */
-    protected function getLanguageCode(string $text)
-    {
-        $languageCodes = [
-            'tr',
-            'en',
-        ];
-
-        $languageCode = substr($text, 1, 2);
-
-        if (!in_array($languageCode, $languageCodes)) {
-            return response()->json([
-                'status' => 'success',
-            ]);
-        }
-
-        return $languageCode;
-    }
-
-    /**
-     * @param $text
-     * @param $languageCode
-     * @param $recordId
-     * @return JsonResponse
-     */
-    private function convert($text, $languageCode, $recordId): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $keyword = new GoogleTranslate($languageCode);
 
-            $translatedText = $keyword->translate($text);
+            $firstName = $request->input('message.from.first_name');
+            $username = $request->input('message.from.username');
+            $text = $request->input('message.text');
+            $entities = $request->input('message.entities') ?? false;
+
+            if (!$entities) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Message is not command.',
+                ]);
+            }
+
+            $this->entities = $entities[0];
+
+            $command = $this->getCommand($text, $this->entities);
+            if (!$command) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This language is not currently supported.',
+                ]);
+            }
 
             $data = [
-                'command' => $languageCode,
-                'language_code' => $languageCode,
-                'response_text' => $translatedText,
-                'status' => true,
+                'first_name' => $firstName,
+                'username' => $username,
+                'request_text' => $text,
+                'log' => json_encode($request->input()),
             ];
 
-            Translated::query()
-                ->where('id', $recordId)
-                ->update($data);
+            $recordId = Translated::query()
+                ->insertGetId($data);
 
-            (new Service())->sendMessage($translatedText);
+            $text = substr($text, ($this->entities['length'] + 1));
 
-            return response()->json([
-                'status' => 'success',
-            ]);
+            return $this->convert($text, $command, $recordId);
 
         } catch (Exception $e) {
             return response()->json([
-                'status' => 'success',
+                'status' => false,
+                'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    protected function getCommand(string $text, array $entities)
+    {
+        $command = substr($text, ($entities['offset'] + 1), ($entities['length'] - 1));
+
+        if (!in_array($command, $this->languages)) {
+            return false;
+        }
+
+        return $command;
+    }
+
+
+    private function convert($text, $command, $recordId): JsonResponse
+    {
+        $keyword = new GoogleTranslate($command);
+
+        $translatedText = $keyword->translate($text);
+
+        $recordComplete = [
+            'command' => $command,
+            'language_code' => $command,
+            'response_text' => $translatedText,
+            'status' => true,
+        ];
+
+        Translated::query()
+            ->where('id', $recordId)
+            ->update($recordComplete);
+
+        (new Service())->sendMessage($translatedText);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The conversion is complete.',
+            'recordId' => $recordId
+        ]);
     }
 }
