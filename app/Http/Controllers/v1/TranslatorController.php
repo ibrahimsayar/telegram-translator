@@ -18,7 +18,6 @@ class TranslatorController extends Controller
     protected array $languages = [
         'en',
         'tr',
-        'try'
     ];
 
     /**

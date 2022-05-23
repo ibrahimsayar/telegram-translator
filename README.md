@@ -61,9 +61,9 @@ composer install
 cp .env.example .env
 php artisan key:generate
 ```
-### Important
 
-#### Parameters you need to define after the .env file is created.
+> **Warning**
+> Parameters you need to define after the .env file is created.
 
 | Parameter | Comment |
 | ------ | ------ |
@@ -82,6 +82,6 @@ php artisan key:generate
 php artisan serve
 ```
 
-## License
+> **License**
+> The Telegram Translator is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-The Telegram Translator is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
